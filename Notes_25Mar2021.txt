@@ -1,0 +1,437 @@
+Spring MVC
+----------
+MVC
+	What is MVC?
+		Model View Controller
+	What is Model?
+		The code that 
+			defines data	(or)
+			access data
+	Data definition or data access are model
+
+	What is View?
+		Input, Output elements
+		Presentation
+		html, jsp, (sometimes servlet), Scanner, syso also 
+
+	What is Controller?
+		controls the access between model and view
+		controller decides which view should be displayed
+		controller decides which model should be accessed
+
+In Java based web application terminology,
+	what is MVC1?
+		first generation MVC framework
+		
+	What was the technique used in MVC1?
+		JSP	was used for most of the tasks in web application
+		JSP 
+			provided view
+			used "<jsp:useBean>" to call "model" class methods
+
+		There was very less scope for servlets in MVC1
+	drawback:
+		Model and View were tightly coupled in MVC1		(JSP)
+
+	If you remember the Associate demo, we used MVC1 because, in JSP, we created DAO object and obtained all associates and displayed in the tabular format
+
+
+	What is MVC2?
+		The controller takes the ownership in MVC2.	iN mvc2, WE CANNOT ACCESS A VIEW without help of a controller (even the home page)
+
+	There is a Front Controller component
+		that receives any request as URL
+		and decides which view should be displayed
+				
+Activity:
+	MVC1 vs MVC2
+
+	Share your opinion. 
+--------------------------------------------------------------------------
+In MVC2
+	every request is received by the controller (servlet)
+
+	the controller, retrieves required model and redirect to corresponding view
+	
+How can we make all request reach 1 servlet (Front controller)
+
+any url, any request url, redirect url, forward/include url
+	should reach only 1 servlet.
+
+	that servlet should redirect to corresponding view (jsp)
+
+
+
+Do you remember filter?		with a pattern 	/*
+this will receive / intercept any request for any url
+
+
+in web.xml
+	we can define a servlet
+	with url mapping as /*
+
+	that servlet can receive all requests
+	and a servlet can find the request url also
+
+------------------------------
+Spring MVC
+	the front controller is taken care by Spring
+
+
+In our previous projects,
+	a servlet was reached on submission of a form
+	the servlet checks
+	switch(btn)
+	{
+		case "Add":
+			break;
+		case "Modify":
+			break;
+		case "Delete":
+			break;
+	}
+
+	
+	Now in Spring, we want to make this code a POJO class
+	Plain Old Java Objects
+		a class that does not extends other class. Simple class is POJO
+
+	servlet is not POJO
+	
+	class MyController
+	{
+		@RequestMapping("/add")
+		public void add(){}
+		
+		@RequestMapping("/modify")	
+		public void modify(){}
+
+		@RequestMapping("/delete")
+		public void delete(){}
+	}
+
+
+	this is what we want to achieve
+	The controller should be a pojo class
+
+	in servlet, doGet method, we cannot use "throws"
+	because, it is an overridden method.
+
+	But in pojo class, we dont have any restrictions
+
+	in servlet, we cant have any required parameters (arg)
+	But in pojo class, we can have any arguments
+
+So Spring MVC, provides you an environment where a controller can be a pojo class
+
+	So, are we not using servlets in spring mvc?	There is a servlet which is hidden and it is going to receive all requrests and call annotated methods accordingly
+
+Remember We created a FrontController servlet that received all requests
+	and check which url is requested and call that page accordingly
+This Front Controller is already created by Spring MVC framework
+	Dispatcher Servlet (Internal view resolver) 
+
+-------------------------------------------------------------------
+Steps to create our first Spring MVC project
+-------------------------------------------------------------------
+1) create a dynamic web project in eclipse
+2) convert it into a maven project
+3) add dependencies
+4) in web.xml
+	configure the dispatcher servlet
+5) we are going to create a bean.xml file (file name is not "bean.xml")
+	file name has a convention
+
+	in web.xml, we give a name for Dispatcher servlet
+	if the name is "spring", then the bean xml file name should be "spring-servlet.xml"
+
+	if the name of dispatcher servlet is "something" then
+		bean xml file name should be "something-servlet.xml"
+
+	-servlet.xml		is fixed		first portion should be dispatcher servlet name
+
+6) in spring-servlet.xml			(assuming file name is spring-servlet.xml)
+	define a bean with properties
+		prefix			specifies the folder where our jsp files are present
+		suffix			specifies the extension of the files		ex:	.jsp
+
+also,
+	specify the package that contains the "controller" classes
+
+7) create the Controller classes inside the specified package
+8) create the jsp files inside the folder mentioned in "prefix" of spring-servlet.xml file
+
+
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix">
+            <value>/WEB-INF/views/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+</bean>	
+
+
+in my controller
+	if i say an url as
+		"index"
+
+	this will be prefixed and suffixed as
+		/WEB-INF/views/index.jsp
+---------------------------------------------------------
+Spring MVC Flow
+	http://localhost:8080/mar-25-spring-mvc-1/
+
+	http is the protocol
+	localhost is the server
+	8080 is the port on which server is running
+	mar-25-spring-mvc-1	is the context root	(application context)
+
+	any request coming to this application is received by the Dispatcher Servlet
+	Dispatcher servlet knows the controller methods corresponding to the url of the request, using Handler mapping file 	
+	controller process the request.
+		controller method is capable of getting inputs and also producing outputs
+
+
+Spring MVC Components
+	Model
+	View
+	Controller
+
+DispatcherServlet Configuration
+	in web.xml it is configured
+
+
+Task:
+	create a form that accepts couple of inputs from user, using input html elements
+	on submitting the form, it should reach a controller method using url
+
+	<form action="login">			//here, the login is not a jsp or servlet name. it is mapped to a method in controller
+
+
+	in the controller, 
+	public String login()
+	{
+		return "something";		//by default, the Controller methods return "url"
+	}
+
+
+	by using @ResponseBody annotation, we can return a content that is needed to be displayed as response
+
+
+Task:
+	create a jsp file "maths.jsp"
+	this page should be displayed as home  page
+
+	accept 2 inputs
+		no1
+		no2
+	submit
+
+	on submit, the form should be sent to controller method "add"
+	add method should add the numbers and display as
+		"The sum of x and y is z"
+
+
+Task:
+	create a form	
+		bid
+		bname
+		bcity
+
+	and a submit button
+
+	form on submit, should reach a controller method
+
+	the controller method has a parameter which is Branch branch
+
+	display the branch.toString() in response body
+
+
+What is this 
+	@RequestMapping
+
+	we can use this annotation to map any request method
+	what are the types of request method you know?
+		1) GET		(when we enter the url in browser Address bar)
+			by default it was GET method only
+	@RequestMapping(method = RequestMethod.GET, value = {"/","/home"})
+
+		2) POST		
+			@RequestMapping(method = RequestMethod.POST,value="/success")
+
+
+
+		3) PUT
+			
+		4) DELETE
+
+		5) PATCH
+
+
+lets understand the purpose of these methods:
+
+	GET			read(), read(id)
+	POST			create()
+	PUT			update()
+	DELETE			delete()
+	PATCH			update based on only few details NOT ALL DETAILS
+
+
+
+same URL, but different Http method
+
+
+@RequestMapping(method = RequestMethod.GET,value="/branch")
+public Branch findBranchById(String bid)
+{
+	return ....
+}
+
+@RequestMapping(method = RequestMethod.POST,value="/branch")
+public void createBranch(Branch branch)
+{}
+
+
+@RequestMapping(method = RequestMethod.PUT,value="/branch")
+public void modifyBranch(Branch branch)
+{}
+
+
+@RequestMapping(method = RequestMethod.DELETE,value="/branch")
+public void deleteBranch(String bid)
+{}
+
+
+
+<form method="POST" action="branch">
+	if you submit this form, which of the above methods, will be hit?
+
+Instead of using @RequestMapping,
+we can use
+
+@GetMapping
+@PostMapping
+@PutMapping
+@DeleteMapping
+
+Task:
+	create a form action="branch"
+
+	but change the method to
+		GET
+		POST
+
+	and observe different methods of controller is being invoked accordingly
+
+	Try with
+		RequestMapping (and/or) GetMapping and/or PostMapping
+
+Get mapping is meant for getting response data
+post mapping is meant for posting data to the controller
+-----------------------------------------------------------------------
+@RequestParam
+@PathVariable
+
+http://localhost:8080/mar-25-spring-mvc-1/branch
+
+
+http://localhost:8080/mar-25-spring-mvc-1/branch?bid=B00017&bname=Main+Branch&bcity=Kolkata
+
+	to capture any of these (query string)values, 
+		we use @RequestParam
+
+
+
+http://localhost:8080/mar-25-spring-mvc-2/branch?bid=B00018
+in the above url,
+	bid=B00018
+
+	bid is called as RequestParam
+
+	@GetMapping("/branch")
+	@ResponseBody
+	public String displayBranch(@RequestParam("bid") String branchId)
+	{
+		return "Displaying branch "+branchId;
+	}
+
+
+<input type=text name="bid" />
+
+
+
+http://localhost:8080/mar-25-spring-mvc-2/branch/B00018
+
+	@GetMapping("/branch/{bid}")
+	@ResponseBody
+	public String findBranch(@PathVariable("bid")String branchId)
+	{
+		return "Branch found : "+branchId;
+	}
+
+download post man now
+
+
+--------------------------------------------------------------------------------------
+JdbcTemplate		&	JdbcDaoSupport
+HibernateTemplate	&	HibernateDaoSupport
+
+EntityManager
+
+pom.xml dependency for entity manager
+	<dependency>
+		<groupId>org.hibernate</groupId>
+		<artifactId>hibernate-entitymanager</artifactId>
+		<version>${hibernate.version}</version>
+	</dependency>
+		
+
+--------------------------------------------------------------------------------------
+Service	-> Dao
+
+Spring boot, we use CrudRepository 
+	will create Dao
+we need a space where we can write our CRUD
+	service
+
+Service is the code accessible to external world
+
+Download this problem "em"
+
+Create your project and use Entity manager and service
+-------------------------------------------------------
+Task:
+add the jackson dependency to  pom.xml
+<dependency>
+	<groupId>com.fasterxml.jackson.core</groupId>
+	<artifactId>jackson-databind</artifactId>
+	<version>2.9.6</version>
+</dependency>
+
+Create a controller
+	with
+
+	get mapping that returns a java object 
+		use produces=MediaType.APPLICATION_JSON_VALUE
+
+	post mapping that accepts a java object
+		use consumes=MediaType.APPLICATION_JSON_VALUE
+
+
+
+	@GetMapping(value="/branch", produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Branch> read()
+	{
+		Branch branch=new Branch("B00011", "Main branch", "Kolkata");
+		return new ResponseEntity<Branch>(branch, HttpStatus.OK);
+	}
+	
+	@PostMapping(value = "/branch" , consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String create(@RequestBody Branch branch)
+	{
+		System.out.println("Received branch values");
+		return branch.toString();
+	}
+	
